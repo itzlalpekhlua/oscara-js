@@ -9,6 +9,11 @@ import { DriftingDiamonds } from "@/components/DriftingDiamonds";
 import { prisma } from "@/lib/prisma";
 import { siteUrl } from "@/lib/site";
 
+// Every page under (site) reads admin-editable content from the database, so
+// render on demand instead of prerendering at build time. This keeps the build
+// from depending on the database and makes admin edits appear immediately.
+export const dynamic = "force-dynamic";
+
 const sans = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],

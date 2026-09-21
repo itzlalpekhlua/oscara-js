@@ -3,8 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  // Pooled connection for the running app (Neon PgBouncer endpoint).
+  url = env("DATABASE_URL")
+  // Direct (non-pooled) connection used by `prisma db push`/migrations.
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 model AdminUser {
