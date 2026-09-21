@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/ensure-dev-env.mjs",
     "dev": "next dev",
     "build": "next build",
     "postbuild": "node scripts/copy-standalone-assets.mjs",
     "start": "node scripts/link-persistent-storage.mjs && next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "db:push": "prisma db push --schema=backend/prisma/schema.prisma",
     "db:seed": "tsx backend/prisma/seed.ts",
     "admin:create": "tsx scripts/create-admin-user.ts",

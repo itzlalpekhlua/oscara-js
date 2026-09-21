@@ -7,6 +7,7 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { DriftingDiamonds } from "@/components/DriftingDiamonds";
 import { prisma } from "@/lib/prisma";
+import { siteUrl } from "@/lib/site";
 
 const sans = Inter({
   subsets: ["latin"],
@@ -20,11 +21,36 @@ const brand = Poppins({
   variable: "--font-brand",
 });
 
+const siteName = "Ojaskaraa Builders";
+const siteDescription =
+  "Ojaskaraa Builders — premium residential and commercial construction, architecture, and design in Bharatpur & Kathmandu, Nepal.";
+
 export const metadata: Metadata = {
-  title: "Ojaskaraa Builders",
-  description:
-    "Ojaskaraa Builders — premium residential and commercial construction, architecture, and design in Bharatpur & Kathmandu, Nepal.",
-  icons: { icon: "/logo-mark.png" },
+  // metadataBase resolves every relative URL below (and any per-page Open
+  // Graph image) against the live domain, so shared links and canonicals
+  // never fall back to localhost.
+  metadataBase: new URL(siteUrl),
+  title: { default: siteName, template: `%s — ${siteName}` },
+  description: siteDescription,
+  applicationName: siteName,
+  icons: { icon: "/logo-mark.png", apple: "/logo-mark.png" },
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName,
+    title: siteName,
+    description: siteDescription,
+    url: "/",
+    locale: "en_US",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: siteName }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteName,
+    description: siteDescription,
+    images: ["/og-image.png"],
+  },
+  robots: { index: true, follow: true },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
