@@ -13,10 +13,19 @@ const nextConfig = {
   // Produces .next/standalone/server.js — a self-contained Node server this
   // app can run under a plain host process (e.g. cPanel's Node.js Selector /
   // Passenger), instead of requiring the `next start` CLI.
-  // Only set for `next build` — Turbopack's dev-mode font loader breaks when
-  // this is on during `next dev` (NODE_ENV is always "development" there,
-  // forced by the Next.js CLI, so this can't accidentally leak into dev).
-  output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
+  //
+  // Skipped on Vercel: Vercel runs its own build-output file tracing, and
+  // `output: "standalone"` conflicts with it — the build fails trying to open
+  // `.next/next-server.js.nft.json`. Vercel packages the serverless functions
+  // itself, so standalone is only needed for the self-hosted target.
+  //
+  // Only set for a production `next build` off Vercel — Turbopack's dev-mode
+  // font loader breaks when this is on during `next dev` (NODE_ENV is always
+  // "development" there, forced by the Next.js CLI, so it can't leak into dev).
+  output:
+    process.env.VERCEL !== "1" && process.env.NODE_ENV === "production"
+      ? "standalone"
+      : undefined,
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
