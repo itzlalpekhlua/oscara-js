@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         String
+  createdAt    DateTime @default(now())
+}
+
+model Category {
+  id            String         @id @default(cuid())
+  name          String
+  slug          String         @unique
+  description   String?
+  heroImage     String?
+  order         Int            @default(0)
+  published     Boolean        @default(true)
+  buildingTypes BuildingType[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model BuildingType {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String
+  description String?
+  order       Int       @default(0)
+  published   Boolean   @default(true)
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String
+  designs     Design[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([categoryId, slug])
+}
+
+model Design {
+  id             String        @id @default(cuid())
+  name           String
+  slug           String
+  description    String?
+  featuredImage  String?
+  order          Int           @default(0)
+  published      Boolean       @default(true)
+  buildingType   BuildingType  @relation(fields: [buildingTypeId], references: [id], onDelete: Cascade)
+  buildingTypeId String
+  images         DesignImage[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([buildingTypeId, slug])
+}
+
+model DesignImage {
+  id       String  @id @default(cuid())
+  url      String
+  alt      String?
+  order    Int     @default(0)
+  design   Design  @relation(fields: [designId], references: [id], onDelete: Cascade)
+  designId String
+}
+
+model DesignWork {
+  id            String            @id @default(cuid())
+  title         String
+  slug          String            @unique
+  kind          String
+  scope         String
+  roomType      String?
+  description   String?
+  featuredImage String?
+  order         Int               @default(0)
+  published     Boolean           @default(true)
+  images        DesignWorkImage[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model DesignWorkImage {
+  id           String     @id @default(cuid())
+  url          String
+  alt          String?
+  order        Int        @default(0)
+  designWork   DesignWork @relation(fields: [designWorkId], references: [id], onDelete: Cascade)
+  designWorkId String
+}
+
+model ConstructionProject {
+  id            String         @id @default(cuid())
+  title         String
+  slug          String         @unique
+  categoryLabel String?
+  location      String?
+  description   String?
+  featuredImage String?
+  order         Int            @default(0)
+  published     Boolean        @default(true)
+  images        ProjectImage[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model ProjectImage {
+  id        String              @id @default(cuid())
+  url       String
+  mediaType String              @default("image")
+  alt       String?
+  order     Int                 @default(0)
+  project   ConstructionProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+}
+
+model Project {
+  id            String                @id @default(cuid())
+  title         String
+  slug          String                @unique
+  category      String?
+  location      String?
+  description   String?
+  featuredImage String?
+  order         Int                   @default(0)
+  published     Boolean               @default(true)
+  images        ProjectGalleryImage[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+}
+
+model ProjectGalleryImage {
+  id        String  @id @default(cuid())
+  url       String
+  mediaType String  @default("image")
+  alt       String?
+  order     Int     @default(0)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+}
+
+model MediaFeature {
+  id        String   @id @default(cuid())
+  title     String
+  outlet    String
+  type      String   @default("article")
+  url       String
+  thumbnail String?
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Service {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  description String?
+  image       String?
+  mediaType   String    @default("image")
+  order       Int       @default(0)
+  published   Boolean   @default(true)
+  parent      Service?  @relation("ServiceChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId    String?
+  children    Service[] @relation("ServiceChildren")
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  image       String?
+  description String?
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+}
+
+model Testimonial {
+  id           String   @id @default(cuid())
+  kind         String   @default("review")
+  customerName String
+  reviewText   String?
+  location     String?
+  rating       Int?
+  videoUrl     String?
+  thumbnail    String?
+  response     String?
+  order        Int      @default(0)
+  published    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}
+
+model SocialPost {
+  id        String   @id @default(cuid())
+  platform  String
+  embedUrl  String
+  thumbnail String?
+  caption   String?
+  order     Int      @default(0)
+  published Boolean  @default(true)
+}
+
+model Enquiry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+}
+
+model CostEstimatorRates {
+  id                  String   @id @default("singleton")
+  cementPerBag        Float    @default(850)
+  sandPerCuFt         Float    @default(90)
+  aggregatePerCuFt    Float    @default(85)
+  brickPerPc          Float    @default(18)
+  steelPerKg          Float    @default(115)
+  economyRatePerSqFt  Float    @default(2800)
+  standardRatePerSqFt Float    @default(3500)
+  premiumRatePerSqFt  Float    @default(4500)
+  updatedAt           DateTime @updatedAt
+}
+
+model SiteSettings {
+  id             String  @id @default("singleton")
+  tagline        String?
+  introTitle     String?
+  introBody      String?
+  finalCtaTitle  String?
+  finalCtaBody   String?
+  heroVideoUrl   String?
+  phone          String?
+  phoneSecondary String?
+  email          String?
+  address        String?
+  locationPrimaryName   String?
+  locationPrimaryLabel  String?
+  locationSecondaryName String?
+  locationSecondaryLabel String?
+  instagramUrl   String?
+  facebookUrl    String?
+  tiktokUrl      String?
+  whatsappUrl    String?
+}

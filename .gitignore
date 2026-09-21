@@ -1,0 +1,15 @@
+# Regenerable — `npm install` / `npm run build` rebuild these. Not excluded
+# for privacy reasons, just because vendoring ~900MB of dependency/build
+# output into git is never useful. Real content and data ARE tracked in
+# this repo, including backend/prisma/dev.db and public/uploads/ — see
+# README/commit message.
+node_modules
+.next
+out
+*.tsbuildinfo
+*.log
+
+# Credentials, not content — ADMIN_SESSION_SECRET here would let anyone
+# forge a valid admin login cookie and skip the password entirely.
+.env
+.env.local
