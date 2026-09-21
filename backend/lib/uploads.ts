@@ -1,19 +1,16 @@
-import { unlink } from "node:fs/promises";
-import path from "node:path";
+import { del } from "@vercel/blob";
 
-const UPLOADS_PREFIX = "/uploads/";
-
-/** Best-effort delete of a file previously written by the upload route. No-ops on
- * anything not under /uploads/ (seeded Unsplash URLs, the hardcoded hero fallback, etc). */
+/** Best-effort delete of a file previously stored by the upload route. Only acts
+ * on Vercel Blob URLs; no-ops on anything else (seeded Unsplash URLs, the
+ * hardcoded hero fallback, and legacy local /uploads/ paths from older deploys). */
 export async function deleteUploadedFile(url: string | null | undefined): Promise<void> {
-  if (!url || !url.startsWith(UPLOADS_PREFIX)) return;
-
-  const relative = url.replace(/^\//, "");
-  const resolved = path.join(process.cwd(), "public", relative);
+  if (!url || !url.startsWith("https://") || !url.includes(".blob.vercel-storage.com/")) {
+    return;
+  }
 
   try {
-    await unlink(resolved);
+    await del(url);
   } catch {
-    // Missing file or already deleted — nothing to do.
+    // Missing blob or already deleted — nothing to do.
   }
 }

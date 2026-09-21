@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { put } from "@vercel/blob";
 import { getSessionUser } from "@/lib/auth";
 import { slugify } from "@/lib/slugify";
 
@@ -66,16 +65,18 @@ export async function POST(request: NextRequest) {
   }
 
   const baseName = slugify(file.name.replace(/\.[^.]+$/, "")) || "file";
-  const filename = `${baseName}-${crypto.randomUUID()}.${ext}`;
+  const pathname = `uploads/${section}/${baseName}-${crypto.randomUUID()}.${ext}`;
 
-  const dir = path.join(process.cwd(), "public", "uploads", section);
-  await mkdir(dir, { recursive: true });
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(dir, filename), buffer);
+  // Persist to Vercel Blob so uploads survive on serverless/ephemeral hosts
+  // (Vercel's filesystem is read-only at runtime). The store is public, so the
+  // returned URL is directly usable in <img>/next/image.
+  const blob = await put(pathname, file, {
+    access: "public",
+    contentType: file.type,
+  });
 
   return NextResponse.json({
-    url: `/uploads/${section}/${filename}`,
+    url: blob.url,
     mediaType: isVideo ? "video" : "image",
   });
 }

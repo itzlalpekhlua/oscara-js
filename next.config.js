@@ -20,6 +20,9 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
+      // Admin-uploaded media is stored in Vercel Blob and served from a
+      // per-store public subdomain of blob.vercel-storage.com.
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
   },
   experimental: {
