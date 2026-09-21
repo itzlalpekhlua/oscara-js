@@ -14,6 +14,10 @@ const envPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", ".env");
 const defaults = {
   DATABASE_URL: '"file:./dev.db"',
   ADMIN_SESSION_SECRET: `"${randomBytes(32).toString("hex")}"`,
+  // SITE_URL is deliberately NOT defaulted here. Next.js resolves canonical and
+  // Open Graph URLs while prerendering, so a dev value in .env would be baked
+  // into the production HTML of any build run from a dev checkout. Unset means
+  // the live domain from backend/lib/site.ts, which is right for every build.
 };
 
 if (!existsSync(envPath)) {
